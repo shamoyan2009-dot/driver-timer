@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Водительский Таймер</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 60px auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+        }
+        p {
+            font-size: 14px;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            background: #eef2f5;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Водительский Таймер</h1>
+    <p>
+        Введите дату получения водительских прав и email.
+        Мы напомним вам за 3 месяца до окончания срока действия.
+    </p>
+
+    <label>Дата получения прав:</label>
+    <input type="date" id="licenseDate">
+
+    <label>Email:</label>
+    <input type="email" id="email">
+
+    <button onclick="calculate()">Получить напоминание</button>
+
+    <div class="result" id="result" style="display:none;"></div>
+</div>
+
+<!-- EmailJS -->
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script>
+(function(){
+    emailjs.init("YOUR_PUBLIC_KEY"); // ← сюда вставишь ключ
+})();
+</script>
+
+<script>
+function calculate() {
+    const licenseDate = document.getElementById("licenseDate").value;
+    const email = document.getElementById("email").value;
+
+    if (!licenseDate || !email) {
+        alert("Заполните все поля");
+        return;
+    }
+
+    const startDate = new Date(licenseDate);
+
+    // дата окончания (10 лет)
+    const endDate = new Date(startDate);
+    endDate.setFullYear(endDate.getFullYear() + 10);
+
+    // дата напоминания (-3 месяца)
+    const notifyDate = new Date(endDate);
+    notifyDate.setMonth(notifyDate.getMonth() - 3);
+
+    document.getElementById("result").style.display = "block";
+    document.getElementById("result").innerHTML = `
+        <strong>Результат:</strong><br>
+        Срок действия прав до: ${endDate.toLocaleDateString()}<br>
+        Напоминание будет отправлено: ${notifyDate.toLocaleDateString()}
+    `;
+
+    // Отправка письма (демо)
+    emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+        user_email: email,
+        end_date: endDate.toLocaleDateString(),
+        notify_date: notifyDate.toLocaleDateString()
+    });
+}
+</script>
+
+</body>
+</html>
